@@ -68,6 +68,7 @@
 
     socket.on("addToChat", function(data) {
         chatText.innerHTML += "<div>" + data + "</div>";
+        chatText.scrollBy(0, 100);
     });
 
     socket.on("newId", function(data) {
