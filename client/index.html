@@ -1,15 +1,43 @@
-<canvas id="ctx" width="640px" height="480px" style="border: 2px solid #1a1a1a; padding: 0; margin: auto; display: block;"></canvas>
+<div id="gameDiv" style="display:none;">
+    <canvas id="ctx" width="640px" height="480px" style="border: 2px solid #1a1a1a; padding: 0; margin: auto; display: block;"></canvas>
 
-<div id="chat-text" style="width: 640px; height: 100px; overflow-y: scroll; padding: 0; margin: auto; display: block;">
-    <div>Start chatting here!</div>
+    <div id="chat-text" style="width: 640px; height: 100px; overflow-y: scroll; padding: 0; margin: auto; display: block; flex-direction: column;">
+        <div>Start chatting here!</div>
+    </div>
+
+    <form id="chat-form" autocomplete="off">
+        <input id="chat-input" type="text" style="width: 640px; padding: 0; margin: auto; display: block;" autocomplete="off">
+    </form>
 </div>
 
-<form id="chat-form">
-    <input id="chat-input" type="text" style="width: 640px; padding: 0; margin: auto; display: block;">
-</form>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js" integrity="sha512-WL6WGKMPBiM9PnHRYIn5YEtq0Z8XP4fkVb4qy7PP4vhmYQErJ/dySyXuFIMDf1eEYCXCrQrMJfkNwKc9gsjTjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+
+<div id="loginDiv">
+    <input id="connect" type="button" value="Connect Metamask" onclick="Connect()">
+</div>
+
 <script>
+    // Metamask
+    var web3, address;
+    
+    async function Connect() {
+        await window.ethereum.enable();
+        web3 = new Web3(window.ethereum);
+        gameDiv = document.getElementById("gameDiv");
+        loginDiv = document.getElementById("loginDiv");
+        gameDiv.style.display = "block";
+        loginDiv.style.display = "none";
+        web3.eth.getAccounts().then(e => { 
+            address = e[0];
+            socket.emit("newAddress", address);
+        });
+    }
+</script>
+
+<script>
+    // Client Input
     const WIDTH = 640;
     const HEIGHT = 480;
     var ID = 0

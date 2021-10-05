@@ -19,12 +19,13 @@ var Player = function(id) {
         x: 320-playerSize/2,
         y: 240-playerSize/2,
         id: id,
+        address: "0x",
         size: playerSize,
         pressingRight: false,
         pressingLeft: false,
         pressingUp: false,
         pressingDown: false,
-        maxSpd: 10
+        maxSpd: 5
     }
     self.updatePosition = function() {
         if (self.pressingRight)
@@ -54,10 +55,14 @@ io.sockets.on("connection", function(socket){
     });
 
     socket.on("sendMsgToServer", function(data) {
-        var playerName = ("" + socket.id).slice(0, 7);
+        var playerName = ("" + PLAYER_LIST[socket.id].address).slice(0, 7);
         for (var i in SOCKET_LIST) {
             SOCKET_LIST[i].emit("addToChat", playerName + ": " + data);
         }
+    });
+
+    socket.on("newAddress", function(data) {
+        PLAYER_LIST[socket.id].address = data;
     });
 
     socket.on("keyPress", function(data) {
