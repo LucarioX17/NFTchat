@@ -1,0 +1,79 @@
+<canvas id="ctx" width="640px" height="480px" style="border: 2px solid #1a1a1a; padding: 0; margin: auto; display: block;"></canvas>
+
+<div id="chat-text" style="width: 640px; height: 100px; overflow-y: scroll; padding: 0; margin: auto; display: block;">
+    <div>Start chatting here!</div>
+</div>
+
+<form id="chat-form">
+    <input id="chat-input" type="text" style="width: 640px; padding: 0; margin: auto; display: block;">
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js" integrity="sha512-WL6WGKMPBiM9PnHRYIn5YEtq0Z8XP4fkVb4qy7PP4vhmYQErJ/dySyXuFIMDf1eEYCXCrQrMJfkNwKc9gsjTjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    const WIDTH = 640;
+    const HEIGHT = 480;
+    var ID = 0
+
+    var Sprite = {};
+    Sprite.map = new Image();
+    Sprite.map.src = "client/assets/sprites/grid.png";
+
+    var chatText = document.getElementById("chat-text");
+    var chatInput = document.getElementById("chat-input");
+    var chatForm = document.getElementById("chat-form");
+
+    var ctx = document.getElementById("ctx").getContext("2d");
+
+    var socket = io();
+
+    socket.on("newPosition", function(data){
+        ctx.clearRect(0, 0, 640, 480);
+        //drawMap();
+        
+        for (var i=0; i < data.length; i++) {
+            ctx.beginPath();
+            ctx.rect(data[i].x, data[i].y, data[i].size, data[i].size);
+            ctx.fillStyle = "crimson";
+            ctx.fill();
+        }
+    });
+
+    socket.on("addToChat", function(data) {
+        chatText.innerHTML += "<div>" + data + "</div>";
+    });
+
+    socket.on("newId", function(data) {
+        ID = data;
+    });
+
+    chatForm.onsubmit = function(e) {
+        e.preventDefault();
+        socket.emit("sendMsgToServer", chatInput.value);
+        chatInput.value = "";
+    }
+
+    var drawMap = function() {
+        ctx.drawImage(Sprite.map, 0, 0);
+    }
+
+    document.onkeydown = function(event) {
+        if (event.keyCode == 68) // D
+            socket.emit("keyPress", {inputId: "right", state: true});
+        if (event.keyCode == 65) // A
+            socket.emit("keyPress", {inputId: "left", state: true});
+        if (event.keyCode == 87) // W
+            socket.emit("keyPress", {inputId: "up", state: true});
+        if (event.keyCode == 83) // S
+            socket.emit("keyPress", {inputId: "down", state: true});
+    }
+    document.onkeyup = function(event) {
+        if (event.keyCode == 68) // D
+            socket.emit("keyPress", {inputId: "right", state: false});
+        if (event.keyCode == 65) // A
+            socket.emit("keyPress", {inputId: "left", state: false});
+        if (event.keyCode == 87) // W
+            socket.emit("keyPress", {inputId: "up", state: false});
+        if (event.keyCode == 83) // S
+            socket.emit("keyPress", {inputId: "down", state: false});
+    }
+</script>
