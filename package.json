@@ -8,10 +8,13 @@
     "socket.io": "^4.2.0",
     "sockets": "^0.4.2"
   },
+  "engines": {
+    "node": "14.18.x"
+  },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
-  "author": "",
+  "author": "Lucario",
   "license": "ISC"
 }
