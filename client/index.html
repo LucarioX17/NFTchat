@@ -13,6 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js" integrity="sha512-WL6WGKMPBiM9PnHRYIn5YEtq0Z8XP4fkVb4qy7PP4vhmYQErJ/dySyXuFIMDf1eEYCXCrQrMJfkNwKc9gsjTjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<script src="https://unpkg.com/moralis/dist/moralis.js"></script>
 
 <div id="loginDiv">
     <input id="connect" type="button" value="Connect Metamask" onclick="Connect()">
@@ -20,19 +21,46 @@
 
 <script>
     // Metamask
-    var web3, address;
-    
+    var address;
+
+    Moralis.initialize("QuC3wFuG9Qjstaf5U7tPsYRUxcxUnT3Y6mAzU9EP");
+	Moralis.serverURL = "https://ydjbnsxgtb91.moralishost.com:2053/server";
+
     async function Connect() {
-        await window.ethereum.enable();
-        web3 = new Web3(window.ethereum);
-        gameDiv = document.getElementById("gameDiv");
-        loginDiv = document.getElementById("loginDiv");
-        gameDiv.style.display = "block";
-        loginDiv.style.display = "none";
-        web3.eth.getAccounts().then(e => { 
-            address = e[0];
+        var user = await Moralis.Web3.authenticate();
+        if (user) {
+            gameDiv = document.getElementById("gameDiv");
+            loginDiv = document.getElementById("loginDiv");
+            gameDiv.style.display = "block";
+            loginDiv.style.display = "none";
+            address = user.attributes.ethAddress;
             socket.emit("newAddress", address);
+            getNFTs();
+        }
+    }
+
+    async function getNFTs() {
+        const options = { chain: 'eth', address: address };
+        const ethNFTs = await Moralis.Web3API.account.getNFTs(options);
+
+        ethNFTs.result.forEach(function(nft){
+            let url = fixURL(nft.token_uri);
+
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                //$("#content").html($("#content").html()+"<img width=100px; height=100px; src='"+fixURL(data.image)+"'></img>");
+                console.log(data.image);
+            });
         });
+    }
+
+    function fixURL(url) {
+        if (url.startsWith("ipfs")) {
+            return "https://ipfs.moralis.io:2053/ipfs/"+url.split("ipfs://ipfs/").slice(-1);
+        } else {
+            return url + "?format=json"
+        }
     }
 </script>
 
@@ -51,6 +79,7 @@
     var chatForm = document.getElementById("chat-form");
 
     var ctx = document.getElementById("ctx").getContext("2d");
+    ctx.font = '16px serif';
 
     var socket = io();
 
@@ -60,8 +89,9 @@
         
         for (var i=0; i < data.length; i++) {
             ctx.beginPath();
+            ctx.fillText(data[i].address.slice(0, 7), data[i].x-5, data[i].y-10);
             ctx.rect(data[i].x, data[i].y, data[i].size, data[i].size);
-            ctx.fillStyle = "crimson";
+            ctx.fillStyle = "black";
             ctx.fill();
         }
     });

@@ -13,7 +13,7 @@ console.log("Server Started")
 var SOCKET_LIST = {};
 var PLAYER_LIST = {};
 
-var playerSize = 50;
+var playerSize = 40;
 var Player = function(id) {
     var self = {
         x: 320-playerSize/2,
@@ -86,7 +86,8 @@ setInterval(function() {
             x: player.x,
             y: player.y,
             size: player.size,
-            id: player.id
+            id: player.id,
+            address: player.address
         });
     }
 
