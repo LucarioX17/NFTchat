@@ -18,6 +18,7 @@ var Player = function(id) {
     var self = {
         x: 320-playerSize/2,
         y: 240-playerSize/2,
+        avatar: null,
         id: id,
         address: "Guest " + ((Math.random()+1)*2731).toString(),
         size: playerSize,
@@ -68,6 +69,10 @@ io.sockets.on("connection", function(socket){
         PLAYER_LIST[socket.id].address = data;
     });
 
+    socket.on("newAvatar", function(data) {
+        PLAYER_LIST[socket.id].avatar = data;
+    });
+
     socket.on("keyPress", function(data) {
         if (data.inputId == "right")
             player.pressingRight = data.state;
@@ -90,6 +95,7 @@ setInterval(function() {
             y: player.y,
             size: player.size,
             id: player.id,
+            avatar: player.avatar,
             address: player.address
         });
     }

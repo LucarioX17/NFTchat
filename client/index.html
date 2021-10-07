@@ -51,9 +51,9 @@
             .then(response => response.json())
             .then(data => {
                 var img = document.createElement('img');
-                img.src  = fixURL(data.image);
+                img.src = fixURL(data.image);
                 img.style = "height: 100px; width: 100px;";
-                img.setAttribute('onclick', 'setAvatar()');
+                img.setAttribute("id", "nftImage");
                 $("#gameDiv").append(img);
                 getPolygonNFTs();
             });
@@ -71,9 +71,9 @@
             .then(response => response.json())
             .then(data => {
                 var img = document.createElement('img');
-                img.src  = fixURL(data.image);
+                img.src = fixURL(data.image);
                 img.style = "height: 100px; width: 100px;";
-                img.setAttribute('onclick', 'setAvatar()');
+                img.setAttribute("id", "nftImage");
                 $("#gameDiv").append(img);
             });
         });
@@ -95,17 +95,17 @@
         gameDiv.style.display = "block";
         loginDiv.style.display = "none";
     }
-
-    function setAvatar() {
-        console.log("hey");
-    }
+    
+    $('body').on('click','img',function(img){
+        socket.emit("newAvatar", img.target.src);
+    });
 </script>
 
 <script>
     // Client Input
     const WIDTH = 640;
     const HEIGHT = 480;
-    var ID = 0
+    var ID = 0;
 
     var Sprite = {};
     Sprite.map = new Image();
@@ -131,6 +131,11 @@
             ctx.rect(data[i].x, data[i].y, data[i].size, data[i].size);
             ctx.fillStyle = "black";
             ctx.fill();
+            if (data[i].avatar != null) {
+                var nftAvatar = document.createElement('img');
+                nftAvatar.src = data[i].avatar;
+                ctx.drawImage(nftAvatar, data[i].x, data[i].y, data[i].size, data[i].size);
+            }
         }
     });
 
