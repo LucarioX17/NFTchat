@@ -19,7 +19,7 @@ var Player = function(id) {
         x: 320-playerSize/2,
         y: 240-playerSize/2,
         id: id,
-        address: "0x",
+        address: "Guest " + ((Math.random()+1)*2731).toString(),
         size: playerSize,
         pressingRight: false,
         pressingLeft: false,
@@ -55,7 +55,10 @@ io.sockets.on("connection", function(socket){
     });
 
     socket.on("sendMsgToServer", function(data) {
-        var playerName = ("" + PLAYER_LIST[socket.id].address).slice(0, 7);
+        var playerName;
+        if (PLAYER_LIST[socket.id].address.startsWith("G")) {
+            playerName = ("" + PLAYER_LIST[socket.id].address).slice(0, 10);
+        } else {playerName = ("" + PLAYER_LIST[socket.id].address).slice(0, 7);}
         for (var i in SOCKET_LIST) {
             SOCKET_LIST[i].emit("addToChat", playerName + ": " + data);
         }

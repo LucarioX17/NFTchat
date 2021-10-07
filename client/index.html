@@ -17,6 +17,7 @@
 
 <div id="loginDiv">
     <input id="connect" type="button" value="Connect Metamask" onclick="Connect()">
+    <input id="connect" type="button" value="Connect as Guest" onclick="ConnectGuest()">
 </div>
 
 <script>
@@ -35,32 +36,68 @@
             loginDiv.style.display = "none";
             address = user.attributes.ethAddress;
             socket.emit("newAddress", address);
-            getNFTs();
+            getEthNFTs();
         }
     }
 
-    async function getNFTs() {
-        const options = { chain: 'eth', address: address };
+    async function getEthNFTs() {
+        const options = { chain: 'eth', address: address};
         const ethNFTs = await Moralis.Web3API.account.getNFTs(options);
 
         ethNFTs.result.forEach(function(nft){
             let url = fixURL(nft.token_uri);
-
+            
             fetch(url)
             .then(response => response.json())
             .then(data => {
-                //$("#content").html($("#content").html()+"<img width=100px; height=100px; src='"+fixURL(data.image)+"'></img>");
-                console.log(data.image);
+                var img = document.createElement('img');
+                img.src  = fixURL(data.image);
+                img.style = "height: 100px; width: 100px;";
+                img.setAttribute('onclick', 'setAvatar()');
+                $("#gameDiv").append(img);
+                getPolygonNFTs();
+            });
+        });
+    }
+
+    async function getPolygonNFTs() {
+        const options = { chain: 'polygon', address: address};
+        const ethNFTs = await Moralis.Web3API.account.getNFTs(options);
+
+        ethNFTs.result.forEach(function(nft){
+            let url = fixURL(nft.token_uri);
+            
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                var img = document.createElement('img');
+                img.src  = fixURL(data.image);
+                img.style = "height: 100px; width: 100px;";
+                img.setAttribute('onclick', 'setAvatar()');
+                $("#gameDiv").append(img);
             });
         });
     }
 
     function fixURL(url) {
         if (url.startsWith("ipfs")) {
-            return "https://ipfs.moralis.io:2053/ipfs/"+url.split("ipfs://ipfs/").slice(-1);
+            url = "https://ipfs.io/ipfs/" + url.split("ipfs://" + ",");
+            url = url.slice(0, 21) + url.slice(26);
+            return url
         } else {
             return url + "?format=json"
         }
+    }
+
+    function ConnectGuest() {
+        gameDiv = document.getElementById("gameDiv");
+        loginDiv = document.getElementById("loginDiv");
+        gameDiv.style.display = "block";
+        loginDiv.style.display = "none";
+    }
+
+    function setAvatar() {
+        console.log("hey");
     }
 </script>
 
@@ -89,7 +126,8 @@
         
         for (var i=0; i < data.length; i++) {
             ctx.beginPath();
-            ctx.fillText(data[i].address.slice(0, 7), data[i].x-5, data[i].y-10);
+            if (data[i].address.startsWith("G")) {ctx.fillText(data[i].address.slice(0, 10), data[i].x-15, data[i].y-10);}
+            else {ctx.fillText(data[i].address.slice(0, 7), data[i].x-5, data[i].y-10);}
             ctx.rect(data[i].x, data[i].y, data[i].size, data[i].size);
             ctx.fillStyle = "black";
             ctx.fill();
