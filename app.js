@@ -98,4 +98,4 @@ setInterval(function() {
         var socket = SOCKET_LIST[i];
         socket.emit("newPosition", pack);
     }
-}, 1000/60);
+}, 1000/30);
